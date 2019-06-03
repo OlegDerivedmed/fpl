@@ -31,7 +31,6 @@ public class SignupController {
 
     @PostMapping(SIGN_UP)
     @ApiOperation(value = "sign up")
-    @ApiImplicitParam(name = "Authorization",value = "Authorization",type = "string", required = true, paramType = "header")
     public ResponseEntity<ApiResponseWrapper<Long>> signup(@RequestBody @Valid SignupDTO signupDTO) {
         User newUser = signUpService.createUser(signupDTO.getLogin(), signupDTO.getPassword(), signupDTO.getFirstName(),
                 signupDTO.getLastName(), signupDTO.getIsLearner());
