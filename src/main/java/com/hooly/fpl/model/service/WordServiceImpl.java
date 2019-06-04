@@ -46,6 +46,12 @@ public class WordServiceImpl {
 
     }
 
+    @Transactional
+    public List<Word> getUsersWords(){
+        User currentUser = userService.getCurrentUser();
+        return userWordRepository.findWordsByUser(currentUser);
+    }
+
     private Optional<Word> findWordByWord(String word) {
         return wordRepository.findWordByWord(word);
     }

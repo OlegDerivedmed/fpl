@@ -13,4 +13,5 @@ public interface WordRepository extends JpaRepository<Word,Long> {
 
     @Query(value = "select w from Word w where w.word = :word")
     Optional<Word> findWordByWord(@Param(value = "word") String word);
+
 }
