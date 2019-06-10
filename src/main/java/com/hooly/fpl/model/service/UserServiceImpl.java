@@ -5,6 +5,7 @@ import com.hooly.fpl.model.entity.UserRole;
 import com.hooly.fpl.model.entity.UserState;
 import com.hooly.fpl.model.repository.UserRepository;
 import com.hooly.fpl.model.security.UserDetailsImpl;
+import com.hooly.fpl.rest.exception.UserAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,8 +47,12 @@ public class UserServiceImpl implements UserDetailsService {
         return repository.save(newUser);
     }
 
-    public User getCurrentUser() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public User getCurrentUser() throws UserAuthenticationException {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if ("anonymousUser".equals(principal)){
+            throw new UserAuthenticationException("Invalid user credentials. User not found.");
+        }
+        User user = (User) principal;
         return repository.findOneByLogin(user.getLogin())
                 .orElseThrow(() -> new IllegalStateException("Operation requires authentication context!!!"));
     }

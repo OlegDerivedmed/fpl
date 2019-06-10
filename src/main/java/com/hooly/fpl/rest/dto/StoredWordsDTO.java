@@ -9,6 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 public class StoredWordsDTO {
 
+    private Long id;
     private String word;
     private List<String> translates;
 }

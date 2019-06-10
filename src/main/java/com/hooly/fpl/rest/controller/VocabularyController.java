@@ -9,8 +9,11 @@ import com.hooly.fpl.rest.service.MapServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -27,22 +30,31 @@ public class VocabularyController {
     @Autowired
     private MapServiceImpl mapper;
 
-    @PostMapping("/addWord")
+    @PostMapping("/addWords")
     @ApiOperation(value = "add new word to vocabulary")
-    @ApiImplicitParam(name = "Authorization",value = "Authorization",type = "string", required = true, paramType = "header")
-    public ResponseEntity<ApiResponseWrapper<Long>> addWordToVocabulary(@RequestBody List<VocabularyWordDTO> words) {
-        words.forEach(w -> wordService.addWord(w.getWord(),w.getTranslate()));
-        ApiResponseWrapper<Long> apiResponseWrapper = new ApiResponseWrapper<>(new Long(11));
-        return ResponseEntity.ok(apiResponseWrapper);
+    @ApiImplicitParam(name = "Authorization", value = "Authorization", type = "string", required = true, paramType = "header")
+    public ResponseEntity<HttpStatus> addWordToVocabulary(@RequestBody List<VocabularyWordDTO> words) {
+        words.forEach(w -> wordService.addWord(w.getWord(), w.getTranslate()));
+        return ResponseEntity.ok(HttpStatus.CREATED);
     }
 
     @GetMapping("/getUserWords")
     @ApiOperation(value = "get words which is in vocabulary of current user")
-    @ApiImplicitParam(name = "Authorization",value = "Authorization",type = "string", required = true, paramType = "header")
-    public ResponseEntity<ApiResponseWrapper<List<StoredWordsDTO>>> getUsersWords(){
-        List<Word> words = wordService.getUsersWords();
+    @ApiImplicitParam(name = "Authorization", value = "Authorization", type = "string", required = true, paramType = "header")
+    public ResponseEntity<ApiResponseWrapper<List<StoredWordsDTO>>> getUsersWords(@ApiParam @Nullable @RequestParam("pageNum") Integer pageNum,
+                                                                                  @ApiParam @Nullable @RequestParam("pageSize") Integer pageSize) {
+        List<Word> words = wordService.getUserWords(pageNum, pageSize);
         List<StoredWordsDTO> wordsForResponse = new ArrayList<>();
         words.forEach(w -> wordsForResponse.add(mapper.map(w)));
         return ResponseEntity.ok(new ApiResponseWrapper<>(wordsForResponse));
     }
+
+    @PostMapping("/removeWord")
+    @ApiOperation(value = "to remove word from vocabulary you need to send word`s ID parameter : wordId")
+    @ApiImplicitParam(name = "Authorization", value = "Authorization", type = "string", required = true, paramType = "header")
+    public ResponseEntity<HttpStatus> removeWord(@ApiParam(required = true,name = "wordId") @RequestBody Long wordId) {
+        wordService.removeWord(wordId);
+        return ResponseEntity.ok(HttpStatus.GONE);
+    }
+
 }

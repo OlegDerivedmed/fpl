@@ -56,7 +56,6 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
                         user, null, authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             });
-
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }

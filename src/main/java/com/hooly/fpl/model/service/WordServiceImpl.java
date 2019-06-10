@@ -6,7 +6,10 @@ import com.hooly.fpl.model.entity.UserWord;
 import com.hooly.fpl.model.entity.Word;
 import com.hooly.fpl.model.repository.UserWordRepository;
 import com.hooly.fpl.model.repository.WordRepository;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +28,11 @@ public class WordServiceImpl {
     @Autowired
     private UserServiceImpl userService;
 
+    private static final int PAGE_NUMBER = 0;
+    private static final int PAGE_SIZE = 10;
+
     @Transactional
+    @SneakyThrows
     public void addWord(String word, String translate) {
         Optional<Word> wordCandidate = findWordByWord(word);
         User currentUser = userService.getCurrentUser();
@@ -47,9 +54,16 @@ public class WordServiceImpl {
     }
 
     @Transactional
-    public List<Word> getUsersWords(){
+    @SneakyThrows
+    public List<Word> getUserWords(Integer pageNum, Integer pageSize) {
         User currentUser = userService.getCurrentUser();
-        return userWordRepository.findWordsByUser(currentUser);
+        return userWordRepository.findWordsByUser(currentUser, getPageable(pageNum, pageSize));
+    }
+
+    @Transactional
+    @SneakyThrows
+    public void removeWord(Long wordId){
+        userWordRepository.removeWordById(userService.getCurrentUser().getId(),wordId);
     }
 
     private Optional<Word> findWordByWord(String word) {
@@ -71,6 +85,10 @@ public class WordServiceImpl {
         translateService.save(newTranslate);
         wordRepository.findWordByWord(word).get();
 
+    }
+
+    private Pageable getPageable(Integer page, Integer size) {
+        return PageRequest.of(page == null ? PAGE_NUMBER : page, size == null ? PAGE_SIZE : size);
     }
 }
 
